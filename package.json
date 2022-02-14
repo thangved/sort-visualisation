@@ -2,6 +2,7 @@
   "name": "sort-visualisation",
   "version": "1.0.4",
   "main": "index.ts",
+  "type": "module",
   "scripts": {
     "dev": "webpack --watch --mode=development",
     "build": "webpack --mode=production"
