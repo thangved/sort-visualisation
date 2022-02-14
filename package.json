@@ -1,6 +1,6 @@
 {
   "name": "sort-visualisation",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "index.ts",
   "scripts": {
     "dev": "webpack --watch --mode=development",
