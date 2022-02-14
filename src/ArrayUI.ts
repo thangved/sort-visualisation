@@ -8,6 +8,8 @@ type ArrayUIElement = {
 type ArrayUIOptions = {
     dx?: number
     dy?: number
+    speed?: number
+    width?: number
 }
 
 type SwapType = {
@@ -19,8 +21,9 @@ class ArrayUI {
     elements: ArrayUIElement[]
     length: number
     options: ArrayUIOptions
-    index1: number
-    index2: number
+    private index1: number
+    private index2: number
+    private indexMin: number
     private context: CanvasRenderingContext2D
     private swapping: SwapType
 
@@ -30,13 +33,16 @@ class ArrayUI {
         this.context = context
         this.swapping = null
         this.options = options
+        options.speed = options.speed || 60
+        options.width = options.width || 50
 
         this.index1 = -1
         this.index2 = -1
+        this.indexMin = -1
         this.render()
     }
     addElement(key: number) {
-        const position = new Position(this.length * 50, 0)
+        const position = new Position(this.length * this.options.width, 0)
         this.elements.push({
             key,
             position,
@@ -47,6 +53,10 @@ class ArrayUI {
         this.elements = this.elements.filter(element => element.key !== key)
         this.length = this.elements.length
     }
+    removeAllElements() {
+        this.elements = []
+        this.length = 0
+    }
     removeElementByIndex(index) {
         this.elements = this.elements.filter((_, i) => i !== index)
         this.length = this.elements.length
@@ -54,8 +64,23 @@ class ArrayUI {
     resetPosition() {
         this.elements = this.elements.map((element, index) => ({
             ...element,
-            position: new Position(index * 50, 0),
+            position: new Position(index * this.options.width, 0),
         }))
+    }
+    random(elements) {
+        this.removeAllElements()
+        for (; elements >= 0; elements--)
+            this.addElement(Math.floor(Math.random() * 100))
+    }
+
+    getMaxAllElements() {
+        if (!this.length)
+            return 0
+        return this.elements.reduce((prev, current) => {
+            if (prev > current.key)
+                return prev
+            return current.key
+        }, this.elements[0].key)
     }
 
     swap(from: number, to: number) {
@@ -81,24 +106,16 @@ class ArrayUI {
     }
 
     drawElement(element: ArrayUIElement) {
-        this.context.beginPath()
         this.context.fillStyle = '#6dbaff'
-        this.context.rect(
-            element.position.x + this.options.dx,
-            element.position.y + this.options.dy - element.key * 5,
-            50,
-            element.key * 5
-        )
-        this.context.stroke()
-        this.context.fill()
+        this.drawBaseElement(element)
         this.context.fillStyle = '#000'
 
-        this.context.font = '20px Arial'
+        this.context.font = '10px Arial'
         this.context.textAlign = 'center'
         this.context.fillText(
             element.key.toString(),
-            element.position.x + 25 + this.options.dx,
-            element.position.y + 30 + this.options.dy,
+            element.position.x + this.options.width / 2 + this.options.dx,
+            element.position.y + 30 + this.options.dy + this.getMaxAllElements() * 5,
             50
         );
     }
@@ -106,62 +123,43 @@ class ArrayUI {
     drawActives() {
         this.drawActive1()
         this.drawActive2()
+        this.drawMax()
+    }
+    drawMax() {
+        const element = this.elements[this.indexMin]
+        if (!element)
+            return
+        this.context.fillStyle = '#ffd041'
+        this.drawBaseElement(element)
     }
 
     drawActive1() {
         const element = this.elements[this.index2]
         if (!element)
             return
-        this.context.strokeStyle = 'blue'
-        this.context.lineWidth = 2
-        this.context.beginPath()
-        this.context.rect(
-            element.position.x + this.options.dx,
-            element.position.y + this.options.dy - element.key * 5,
-            50,
-            element.key * 5
-        )
-        this.context.stroke()
-
-        this.context.font = '20px Arial'
-        this.context.textAlign = 'center'
-        this.context.fillText(
-            element.key.toString(),
-            element.position.x + 25 + this.options.dx,
-            element.position.y + 30 + this.options.dy,
-            50
-        );
-
-        this.context.strokeStyle = '#000'
-        this.context.lineWidth = 1
+        this.context.fillStyle = '#295293'
+        this.drawBaseElement(element)
     }
 
     drawActive2() {
         const element = this.elements[this.index1]
         if (!element)
             return
-        this.context.strokeStyle = 'red'
-        this.context.lineWidth = 2
+        this.context.fillStyle = '#ff3d3d'
+        this.drawBaseElement(element)
+    }
+
+    drawBaseElement(element: ArrayUIElement) {
         this.context.beginPath()
+        this.context.strokeStyle = 'blue'
         this.context.rect(
             element.position.x + this.options.dx,
-            element.position.y + this.options.dy - element.key * 5,
-            50,
+            element.position.y + this.options.dy - (element.key - this.getMaxAllElements()) * 5,
+            this.options.width,
             element.key * 5
         )
         this.context.stroke()
-
-        this.context.font = '20px Arial'
-        this.context.textAlign = 'center'
-        this.context.fillText(
-            element.key.toString(),
-            element.position.x + 25 + this.options.dx,
-            element.position.y + 30 + this.options.dy,
-            50
-        );
-
-        this.context.strokeStyle = '#000'
-        this.context.lineWidth = 1
+        this.context.fill()
     }
 
     clearContext() {
@@ -189,54 +187,77 @@ class ArrayUI {
         const max = Math.max(this.swapping.from, this.swapping.to)
 
         if (
-            this.elements[min].position.x === max * 50 &&
+            this.elements[min].position.x >= max * this.options.width &&
             this.elements[min].position.y === 0
         ) {
             this.swapping = null
             const temp = this.elements[min]
             this.elements[min] = this.elements[max]
             this.elements[max] = temp
+            this.indexMin = -1
             return
         }
 
-        if (this.elements[min].position.x === max * 50) {
-            this.elements[min].position.y++
-            this.elements[max].position.y--
+        if (this.elements[min].position.x >= max * this.options.width) {
+            this.elements[min].position.y += 5
+            this.elements[max].position.y -= 5
             return
         }
         if (this.elements[min].position.y <= -50) {
-            this.elements[min].position.x++
-            this.elements[max].position.x--
+            this.elements[min].position.x += 5
+            this.elements[max].position.x -= 5
             return
         }
 
-        this.elements[min].position.y--
-        this.elements[max].position.y++
+        this.elements[min].position.y -= 5
+        this.elements[max].position.y += 5
     }
 
     // Sorting
     bubbleSort() {
+        if (this.index1 !== -1 && this.index2 !== -1)
+            return
         this.index1 = this.length - 1
         this.index2 = 0
         this.__bubbleSort()
     }
+    selectionSort() {
+        if (this.index1 !== -1 && this.index2 !== -1)
+            return
+        this.index1 = 0
+        this.index2 = 0
+        this.indexMin = this.index1
+        this.__selectionSort()
+    }
+    insertionSort() {
+        if (this.index1 !== -1 && this.index2 !== -1)
+            return
+        this.index1 = 0
+        this.index2 = 1
+        this.__insertionSort()
+    }
+
+    // __Sorting
 
     private __bubbleSort() {
         if (this.index1 === 0 && this.index2 === this.length - 1) {
             this.index1 = -1
             this.index2 = -1
+            this.indexMin = -1
             return
         }
 
         if (this.swapping)
-            return setTimeout(() => this.__bubbleSort(), 1000)
+            return setTimeout(() => this.__bubbleSort(), 20000 / this.options.speed)
 
         if (this.index2 !== -1)
-            if (this.elements[this.index2].key > this.elements[this.index2 + 1].key)
+            if (this.elements[this.index2]?.key > this.elements[this.index2 + 1]?.key) {
                 this.swap(this.index2, this.index2 + 1)
+                this.indexMin = this.index2 + 1
+            }
 
         if (this.swapping)
-            return setTimeout(() => this.__bubbleSort(), 1000)
+            return setTimeout(() => this.__bubbleSort(), 20000 / this.options.speed)
 
         if (this.index2 === this.index1 - 1) {
             this.index1--
@@ -247,14 +268,79 @@ class ArrayUI {
             this.index2++
         }
 
-        setTimeout(() => this.__bubbleSort(), 1000)
+        setTimeout(() => this.__bubbleSort(), 20000 / this.options.speed)
+    }
+
+    private __selectionSort() {
+        if (this.index1 === this.length - 1 && this.index2 === this.length - 1) {
+            this.index1 = -1
+            this.index2 = -1
+            this.indexMin = -1
+            return
+        }
+
+        if (this.swapping)
+            return setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+
+        if (this.index2 === this.length - 1 && this.indexMin === -1) {
+            this.index1++
+            this.index2 = this.index1
+            this.indexMin = this.index1
+        }
+
+        if (this.index2 === this.length - 1 && this.indexMin !== -1 && !this.swapping) {
+            this.swap(this.indexMin, this.index1)
+            return setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+        }
+
+        if (this.swapping)
+            return setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+
+        if (this.index2 !== this.length - 1)
+            this.index2++
+
+        if (this.indexMin !== -1)
+            if (this.elements[this.index2].key <
+                this.elements[this.indexMin].key)
+                this.indexMin = this.index2
+        setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+    }
+
+    private __insertionSort() {
+        if (this.index1 === this.length) {
+            this.index1 = -1
+            this.index2 = -1
+            this.indexMin = -1
+            return
+        }
+
+        if (this.index2 === 0) {
+            this.index1++
+            this.index2 = this.index1
+        }
+
+        if (this.elements[this.index2]?.key < this.elements[this.index2 - 1]?.key) {
+            this.indexMin = this.index2 - 1
+            this.swap(this.index2, this.index2 - 1)
+        }
+        if (this.swapping)
+            return setTimeout(() => this.__insertionSort(), 20000 / this.options.speed)
+
+        this.index2--
+
+        if (this.elements[this.index2]?.key >= this.elements[this.index2 - 1]?.key) {
+            this.index1++
+            this.index2 = this.index1
+        }
+
+        setTimeout(() => this.__insertionSort(), 20000 / this.options.speed)
     }
 
     render() {
         this.update()
         this.draws()
 
-        setTimeout(() => this.render(), 1000 / 60)
+        setTimeout(() => this.render(), 1000 / this.options.speed)
     }
 }
 

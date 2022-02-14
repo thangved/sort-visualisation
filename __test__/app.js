@@ -1,19 +1,16 @@
 const canvas = document.createElement('canvas')
 const array = new ArrayUI(canvas.getContext('2d'), {
     dx: 100,
-    dy: 400,
+    dy: 100,
+    speed: 240,
+    width: 20
 })
-canvas.width = 900
-canvas.height = 900
+canvas.width = 1920
+canvas.height = 1080
 
-array.addElement(55)
-array.addElement(11)
-array.addElement(70)
-array.addElement(19)
-array.addElement(1)
-array.addElement(5)
-array.addElement(2)
-array.addElement(8)
+for (let i = 0; i <= 20; i++)
+    array.addElement(Math.floor(Math.random() * 100))
+
 
 
 document.body.append(canvas)
