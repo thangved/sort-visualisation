@@ -1,10 +1,10 @@
 {
   "name": "sort-visualisation",
   "version": "1.0.6",
-  "main": "index.ts",
+  "main": "index.js",
   "scripts": {
     "dev": "webpack --watch --mode=development",
-    "build": "webpack --mode=production"
+    "build": "webpack --mode=production && tsc"
   },
   "license": "MIT",
   "dependencies": {},
