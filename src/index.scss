@@ -1,0 +1,36 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    &::-webkit-scrollbar {
+        width: 10px;
+        cursor: pointer;
+        height: 10px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: #00000020;
+        border-radius: 100px;
+        -webkit-border-radius: 100px;
+        -moz-border-radius: 100px;
+        -ms-border-radius: 100px;
+        -o-border-radius: 100px;
+        cursor: pointer;
+    }
+    body {
+        width: 100%;
+        min-height: 100vh;
+        #canvas {
+            width: 100%;
+            height: 100vh;
+        }
+        #tools {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 10px;
+            background: #fafafa;
+            box-shadow: 0 0 20px #00000040;
+        }
+    }
+}

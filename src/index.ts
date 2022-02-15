@@ -1,9 +1,4 @@
-import ArrayUI from "./ArrayUI";
+import __init__ from './__init__';
+import __handle__ from './__handle__';
 
-declare global {
-    interface Window {
-        ArrayUI: any
-    }
-}
-
-window.ArrayUI = ArrayUI
+__handle__(__init__())

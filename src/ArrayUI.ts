@@ -1,8 +1,10 @@
 import Position from './Position'
+import __random__ from './__random__';
 
 type ArrayUIElement = {
     key: number
     position: Position
+    step: number
 }
 
 type ArrayUIOptions = {
@@ -46,6 +48,7 @@ class ArrayUI {
         this.elements.push({
             key,
             position,
+            step: 0,
         })
         this.length = this.elements.length
     }
@@ -56,6 +59,10 @@ class ArrayUI {
     removeAllElements() {
         this.elements = []
         this.length = 0
+        this.swapping = null
+        this.index1 = -1
+        this.index2 = -1
+        this.indexMin = -1
     }
     removeElementByIndex(index: number) {
         this.elements = this.elements.filter((_, i) => i !== index)
@@ -154,10 +161,12 @@ class ArrayUI {
         this.context.strokeStyle = 'blue'
         this.context.rect(
             element.position.x + this.options.dx,
-            element.position.y + this.options.dy - (element.key - this.getMaxAllElements()) * 5,
+            element.position.y + this.options.dy - (element.step - this.getMaxAllElements()) * 5,
             this.options.width,
-            element.key * 5
+            5 * element.step
         )
+        if (element.step < element.key)
+            element.step += __random__() / 20
         this.context.stroke()
         this.context.fill()
     }
@@ -219,6 +228,7 @@ class ArrayUI {
             return
         this.index1 = this.length - 1
         this.index2 = 0
+        this.indexMin = -1
         this.__bubbleSort()
     }
     selectionSort(): void {
@@ -234,6 +244,7 @@ class ArrayUI {
             return
         this.index1 = 0
         this.index2 = 1
+        this.indexMin = -1
         this.__insertionSort()
     }
 
