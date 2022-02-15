@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+    <link rel="icon" href="https://w5team.web.app/favicon.ico" />
     <title>Sort</title>
 </head>
 
@@ -33,11 +34,21 @@
                 <label for="speed">
                     Speed
                 </label>
-                <input type="range" id="speed" name="speed" value="60" max="240">
+                <input type="range" id="speed" name="speed" value="60" max="240" min="30">
                 <label id="speedNumber">
                     60
                 </label>
             </span>
+
+            <div class="ui segment">
+                <div class="field">
+                    <div class="ui toggle checkbox">
+                        <input type="checkbox" name="gift" tabindex="0" class="hidden" id="audio" checked>
+                        <label for="audio">Sound</label>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </body>

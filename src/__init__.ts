@@ -11,7 +11,7 @@ export default function __init__() {
         dx: 60,
         dy: 60,
         speed: 240,
-        width: 20,
+        width: 30,
     })
 
     array.random(__random__())

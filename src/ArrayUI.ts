@@ -28,13 +28,19 @@ class ArrayUI {
     private indexMin: number
     private context: CanvasRenderingContext2D
     private swapping: SwapType
+    private timeouts: ReturnType<typeof setTimeout>[]
+    private stepAudio: HTMLAudioElement
+    private swapAudio: HTMLAudioElement
 
     constructor(context: CanvasRenderingContext2D, options: ArrayUIOptions) {
         this.elements = []
         this.length = 0
         this.context = context
         this.swapping = null
+        this.timeouts = []
         this.options = options
+        this.stepAudio = new Audio('./step.mp3')
+        this.swapAudio = new Audio('./swap.mp3')
         options.speed = options.speed || 60
         options.width = options.width || 50
 
@@ -44,7 +50,7 @@ class ArrayUI {
         window.requestAnimationFrame(() => this.render())
     }
     addElement(key: number) {
-        const position = new Position(this.length * this.options.width, 0)
+        const position = new Position(this.length * this.options.width + 10, 0)
         this.elements.push({
             key,
             position,
@@ -63,6 +69,7 @@ class ArrayUI {
         this.index1 = -1
         this.index2 = -1
         this.indexMin = -1
+        this.clearAllTimeOut()
     }
     removeElementByIndex(index: number) {
         this.elements = this.elements.filter((_, i) => i !== index)
@@ -93,11 +100,27 @@ class ArrayUI {
     swap(from: number, to: number) {
         if (this.swapping)
             return
+        this.swapAudio.play()
         if (from < 0 || from >= this.length)
             return
         if (to < 0 || to >= this.length)
             return
         this.swapping = { from, to }
+    }
+
+    getSortSpeed() {
+        return 20000 / this.options.speed
+    }
+
+    clearAllTimeOut() {
+        this.timeouts.forEach(timeout => {
+            clearTimeout(timeout)
+        })
+    }
+
+    toggleMute() {
+        this.stepAudio.muted = !this.stepAudio.muted
+        this.swapAudio.muted = !this.swapAudio.muted
     }
 
     // ___UIS___METHODS___
@@ -106,19 +129,27 @@ class ArrayUI {
         this.clearContext()
         this.drawElements()
         this.drawActives()
+        this.drawTexts()
     }
 
     drawElements() {
         this.elements.forEach(element => this.drawElement(element))
     }
 
+    drawTexts() {
+        this.elements.forEach(element => this.drawText(element))
+    }
+
     drawElement(element: ArrayUIElement) {
         this.context.fillStyle = '#6dbaff'
         this.drawBaseElement(element)
         this.context.fillStyle = '#000'
+    }
 
+    drawText(element: ArrayUIElement) {
         this.context.font = '10px Arial'
         this.context.textAlign = 'center'
+        this.context.fillStyle = '#000'
         this.context.fillText(
             element.key.toString(),
             element.position.x + this.options.width / 2 + this.options.dx,
@@ -166,9 +197,12 @@ class ArrayUI {
             5 * element.step
         )
         if (element.step < element.key)
-            element.step += __random__() / 20
+            element.step += 1
+        this.context.strokeStyle = '#fff'
+        this.context.lineWidth = 2
         this.context.stroke()
         this.context.fill()
+        this.context.strokeStyle = '#000'
     }
 
     clearContext() {
@@ -191,13 +225,13 @@ class ArrayUI {
 
     updateSwap() {
         if (!this.swapping)
-            return
+            return this.resetPosition()
         const min = Math.min(this.swapping.from, this.swapping.to)
         const max = Math.max(this.swapping.from, this.swapping.to)
 
         if (
             this.elements[min].position.x >= max * this.options.width &&
-            this.elements[min].position.y === 0
+            this.elements[min].position.y >= 0
         ) {
             this.swapping = null
             const temp = this.elements[min]
@@ -208,18 +242,18 @@ class ArrayUI {
         }
 
         if (this.elements[min].position.x >= max * this.options.width) {
-            this.elements[min].position.y += 5
-            this.elements[max].position.y -= 5
+            this.elements[min].position.y += this.options.speed / 20
+            this.elements[max].position.y -= this.options.speed / 20
             return
         }
-        if (this.elements[min].position.y <= -50) {
-            this.elements[min].position.x += 5
-            this.elements[max].position.x -= 5
+        if (this.elements[min].position.y <= -100) {
+            this.elements[min].position.x += this.options.speed / 20
+            this.elements[max].position.x -= this.options.speed / 20
             return
         }
 
-        this.elements[min].position.y -= 5
-        this.elements[max].position.y += 5
+        this.elements[min].position.y -= this.options.speed / 20
+        this.elements[max].position.y += this.options.speed / 20
     }
 
     // Sorting
@@ -255,11 +289,13 @@ class ArrayUI {
             this.index1 = -1
             this.index2 = -1
             this.indexMin = -1
+            this.clearAllTimeOut()
             return
         }
 
         if (this.swapping) {
-            setTimeout(() => this.__bubbleSort(), 20000 / this.options.speed)
+            this.timeouts.push(
+                setTimeout(() => this.__bubbleSort(), this.getSortSpeed()))
             return
         }
 
@@ -270,7 +306,8 @@ class ArrayUI {
             }
 
         if (this.swapping) {
-            setTimeout(() => this.__bubbleSort(), 20000 / this.options.speed)
+            this.timeouts.push(
+                setTimeout(() => this.__bubbleSort(), this.getSortSpeed()))
             return
         }
 
@@ -282,8 +319,8 @@ class ArrayUI {
         if (this.index2 < this.index1 - 1) {
             this.index2++
         }
-
-        setTimeout(() => this.__bubbleSort(), 20000 / this.options.speed)
+        this.stepAudio.play()
+        this.timeouts.push(setTimeout(() => this.__bubbleSort(), this.getSortSpeed()))
     }
 
     private __selectionSort(): void {
@@ -291,11 +328,12 @@ class ArrayUI {
             this.index1 = -1
             this.index2 = -1
             this.indexMin = -1
+            this.clearAllTimeOut()
             return
         }
 
         if (this.swapping) {
-            setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+            this.timeouts.push(setTimeout(() => this.__selectionSort(), this.getSortSpeed()))
             return
         }
 
@@ -307,12 +345,12 @@ class ArrayUI {
 
         if (this.index2 === this.length - 1 && this.indexMin !== -1 && !this.swapping) {
             this.swap(this.indexMin, this.index1)
-            setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+            this.timeouts.push(setTimeout(() => this.__selectionSort(), this.getSortSpeed()))
             return
         }
 
         if (this.swapping) {
-            setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+            this.timeouts.push(setTimeout(() => this.__selectionSort(), this.getSortSpeed()))
             return
         }
 
@@ -323,7 +361,9 @@ class ArrayUI {
             if (this.elements[this.index2].key <
                 this.elements[this.indexMin].key)
                 this.indexMin = this.index2
-        setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+
+        this.stepAudio.play()
+        this.timeouts.push(setTimeout(() => this.__selectionSort(), this.getSortSpeed()))
     }
 
     private __insertionSort(): void {
@@ -331,6 +371,7 @@ class ArrayUI {
             this.index1 = -1
             this.index2 = -1
             this.indexMin = -1
+            this.clearAllTimeOut()
             return
         }
 
@@ -344,7 +385,7 @@ class ArrayUI {
             this.swap(this.index2, this.index2 - 1)
         }
         if (this.swapping) {
-            setTimeout(() => this.__insertionSort(), 20000 / this.options.speed)
+            this.timeouts.push(setTimeout(() => this.__insertionSort(), this.getSortSpeed()))
             return
         }
 
@@ -355,13 +396,13 @@ class ArrayUI {
             this.index2 = this.index1
         }
 
-        setTimeout(() => this.__insertionSort(), 20000 / this.options.speed)
+        this.stepAudio.play()
+        this.timeouts.push(setTimeout(() => this.__insertionSort(), this.getSortSpeed()))
     }
 
     render(): void {
         this.update()
         this.draws()
-
         window.requestAnimationFrame(() => this.render())
     }
 }
