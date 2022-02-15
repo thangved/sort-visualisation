@@ -1,6 +1,6 @@
 {
   "name": "sort-visualisation",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "main": "index.ts",
   "scripts": {
     "dev": "rm -rf ./docs/static && webpack --watch --mode=development",
