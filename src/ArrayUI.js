@@ -14,6 +14,7 @@ exports.__esModule = true;
 var Position_1 = require("./Position");
 var ArrayUI = /** @class */ (function () {
     function ArrayUI(context, options) {
+        var _this = this;
         this.elements = [];
         this.length = 0;
         this.context = context;
@@ -24,7 +25,7 @@ var ArrayUI = /** @class */ (function () {
         this.index1 = -1;
         this.index2 = -1;
         this.indexMin = -1;
-        this.render();
+        window.requestAnimationFrame(function () { return _this.render(); });
     }
     ArrayUI.prototype.addElement = function (key) {
         var position = new Position_1["default"](this.length * this.options.width, 0);
@@ -195,15 +196,19 @@ var ArrayUI = /** @class */ (function () {
             this.indexMin = -1;
             return;
         }
-        if (this.swapping)
-            return setTimeout(function () { return _this.__bubbleSort(); }, 20000 / this.options.speed);
+        if (this.swapping) {
+            setTimeout(function () { return _this.__bubbleSort(); }, 20000 / this.options.speed);
+            return;
+        }
         if (this.index2 !== -1)
             if (((_a = this.elements[this.index2]) === null || _a === void 0 ? void 0 : _a.key) > ((_b = this.elements[this.index2 + 1]) === null || _b === void 0 ? void 0 : _b.key)) {
                 this.swap(this.index2, this.index2 + 1);
                 this.indexMin = this.index2 + 1;
             }
-        if (this.swapping)
-            return setTimeout(function () { return _this.__bubbleSort(); }, 20000 / this.options.speed);
+        if (this.swapping) {
+            setTimeout(function () { return _this.__bubbleSort(); }, 20000 / this.options.speed);
+            return;
+        }
         if (this.index2 === this.index1 - 1) {
             this.index1--;
             this.index2 = -1;
@@ -221,8 +226,10 @@ var ArrayUI = /** @class */ (function () {
             this.indexMin = -1;
             return;
         }
-        if (this.swapping)
-            return setTimeout(function () { return _this.__selectionSort(); }, 20000 / this.options.speed);
+        if (this.swapping) {
+            setTimeout(function () { return _this.__selectionSort(); }, 20000 / this.options.speed);
+            return;
+        }
         if (this.index2 === this.length - 1 && this.indexMin === -1) {
             this.index1++;
             this.index2 = this.index1;
@@ -230,10 +237,13 @@ var ArrayUI = /** @class */ (function () {
         }
         if (this.index2 === this.length - 1 && this.indexMin !== -1 && !this.swapping) {
             this.swap(this.indexMin, this.index1);
-            return setTimeout(function () { return _this.__selectionSort(); }, 20000 / this.options.speed);
+            setTimeout(function () { return _this.__selectionSort(); }, 20000 / this.options.speed);
+            return;
         }
-        if (this.swapping)
-            return setTimeout(function () { return _this.__selectionSort(); }, 20000 / this.options.speed);
+        if (this.swapping) {
+            setTimeout(function () { return _this.__selectionSort(); }, 20000 / this.options.speed);
+            return;
+        }
         if (this.index2 !== this.length - 1)
             this.index2++;
         if (this.indexMin !== -1)
@@ -259,8 +269,10 @@ var ArrayUI = /** @class */ (function () {
             this.indexMin = this.index2 - 1;
             this.swap(this.index2, this.index2 - 1);
         }
-        if (this.swapping)
-            return setTimeout(function () { return _this.__insertionSort(); }, 20000 / this.options.speed);
+        if (this.swapping) {
+            setTimeout(function () { return _this.__insertionSort(); }, 20000 / this.options.speed);
+            return;
+        }
         this.index2--;
         if (((_c = this.elements[this.index2]) === null || _c === void 0 ? void 0 : _c.key) >= ((_d = this.elements[this.index2 - 1]) === null || _d === void 0 ? void 0 : _d.key)) {
             this.index1++;
@@ -272,7 +284,7 @@ var ArrayUI = /** @class */ (function () {
         var _this = this;
         this.update();
         this.draws();
-        setTimeout(function () { return _this.render(); }, 1000 / this.options.speed);
+        window.requestAnimationFrame(function () { return _this.render(); });
     };
     return ArrayUI;
 }());

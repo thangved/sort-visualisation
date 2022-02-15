@@ -39,7 +39,7 @@ class ArrayUI {
         this.index1 = -1
         this.index2 = -1
         this.indexMin = -1
-        this.render()
+        window.requestAnimationFrame(() => this.render())
     }
     addElement(key: number) {
         const position = new Position(this.length * this.options.width, 0)
@@ -49,7 +49,7 @@ class ArrayUI {
         })
         this.length = this.elements.length
     }
-    removeElementByKey(key) {
+    removeElementByKey(key: number) {
         this.elements = this.elements.filter(element => element.key !== key)
         this.length = this.elements.length
     }
@@ -57,7 +57,7 @@ class ArrayUI {
         this.elements = []
         this.length = 0
     }
-    removeElementByIndex(index) {
+    removeElementByIndex(index: number) {
         this.elements = this.elements.filter((_, i) => i !== index)
         this.length = this.elements.length
     }
@@ -67,7 +67,7 @@ class ArrayUI {
             position: new Position(index * this.options.width, 0),
         }))
     }
-    random(elements) {
+    random(elements: number) {
         this.removeAllElements()
         for (; elements >= 0; elements--)
             this.addElement(Math.floor(Math.random() * 100))
@@ -214,14 +214,14 @@ class ArrayUI {
     }
 
     // Sorting
-    bubbleSort() {
+    bubbleSort(): void {
         if (this.index1 !== -1 && this.index2 !== -1)
             return
         this.index1 = this.length - 1
         this.index2 = 0
         this.__bubbleSort()
     }
-    selectionSort() {
+    selectionSort(): void {
         if (this.index1 !== -1 && this.index2 !== -1)
             return
         this.index1 = 0
@@ -229,7 +229,7 @@ class ArrayUI {
         this.indexMin = this.index1
         this.__selectionSort()
     }
-    insertionSort() {
+    insertionSort(): void {
         if (this.index1 !== -1 && this.index2 !== -1)
             return
         this.index1 = 0
@@ -239,7 +239,7 @@ class ArrayUI {
 
     // __Sorting
 
-    private __bubbleSort() {
+    private __bubbleSort(): void {
         if (this.index1 === 0 && this.index2 === this.length - 1) {
             this.index1 = -1
             this.index2 = -1
@@ -247,8 +247,10 @@ class ArrayUI {
             return
         }
 
-        if (this.swapping)
-            return setTimeout(() => this.__bubbleSort(), 20000 / this.options.speed)
+        if (this.swapping) {
+            setTimeout(() => this.__bubbleSort(), 20000 / this.options.speed)
+            return
+        }
 
         if (this.index2 !== -1)
             if (this.elements[this.index2]?.key > this.elements[this.index2 + 1]?.key) {
@@ -256,8 +258,10 @@ class ArrayUI {
                 this.indexMin = this.index2 + 1
             }
 
-        if (this.swapping)
-            return setTimeout(() => this.__bubbleSort(), 20000 / this.options.speed)
+        if (this.swapping) {
+            setTimeout(() => this.__bubbleSort(), 20000 / this.options.speed)
+            return
+        }
 
         if (this.index2 === this.index1 - 1) {
             this.index1--
@@ -271,7 +275,7 @@ class ArrayUI {
         setTimeout(() => this.__bubbleSort(), 20000 / this.options.speed)
     }
 
-    private __selectionSort() {
+    private __selectionSort(): void {
         if (this.index1 === this.length - 1 && this.index2 === this.length - 1) {
             this.index1 = -1
             this.index2 = -1
@@ -279,8 +283,10 @@ class ArrayUI {
             return
         }
 
-        if (this.swapping)
-            return setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+        if (this.swapping) {
+            setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+            return
+        }
 
         if (this.index2 === this.length - 1 && this.indexMin === -1) {
             this.index1++
@@ -290,11 +296,14 @@ class ArrayUI {
 
         if (this.index2 === this.length - 1 && this.indexMin !== -1 && !this.swapping) {
             this.swap(this.indexMin, this.index1)
-            return setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+            setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+            return
         }
 
-        if (this.swapping)
-            return setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+        if (this.swapping) {
+            setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
+            return
+        }
 
         if (this.index2 !== this.length - 1)
             this.index2++
@@ -306,7 +315,7 @@ class ArrayUI {
         setTimeout(() => this.__selectionSort(), 20000 / this.options.speed)
     }
 
-    private __insertionSort() {
+    private __insertionSort(): void {
         if (this.index1 === this.length) {
             this.index1 = -1
             this.index2 = -1
@@ -323,8 +332,10 @@ class ArrayUI {
             this.indexMin = this.index2 - 1
             this.swap(this.index2, this.index2 - 1)
         }
-        if (this.swapping)
-            return setTimeout(() => this.__insertionSort(), 20000 / this.options.speed)
+        if (this.swapping) {
+            setTimeout(() => this.__insertionSort(), 20000 / this.options.speed)
+            return
+        }
 
         this.index2--
 
@@ -336,11 +347,11 @@ class ArrayUI {
         setTimeout(() => this.__insertionSort(), 20000 / this.options.speed)
     }
 
-    render() {
+    render(): void {
         this.update()
         this.draws()
 
-        setTimeout(() => this.render(), 1000 / this.options.speed)
+        window.requestAnimationFrame(() => this.render())
     }
 }
 
