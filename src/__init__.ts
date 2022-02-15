@@ -10,7 +10,7 @@ export default function __init__() {
     const array = new ArrayUI(context, {
         dx: 60,
         dy: 60,
-        speed: 240,
+        speed: 60,
         width: 30,
     })
 
