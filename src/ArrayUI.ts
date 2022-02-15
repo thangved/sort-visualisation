@@ -137,7 +137,16 @@ class ArrayUI {
     }
 
     drawTexts() {
-        this.elements.forEach(element => this.drawText(element))
+        this.elements.forEach((element, index) => {
+            if (element.step < element.key) {
+                if (!index)
+                    element.step++
+                if (index && this.elements[index - 1].key / 32 <= this.elements[index - 1].step)
+                    element.step++
+
+            }
+            this.drawText(element)
+        })
     }
 
     drawElement(element: ArrayUIElement) {
@@ -196,8 +205,6 @@ class ArrayUI {
             this.options.width,
             5 * element.step
         )
-        if (element.step < element.key)
-            element.step += 1
         this.context.strokeStyle = '#fff'
         this.context.lineWidth = 2
         this.context.stroke()
