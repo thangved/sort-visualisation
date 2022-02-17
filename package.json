@@ -1,27 +1,29 @@
 {
-  "name": "sort-visualisation",
-  "version": "1.0.11",
-  "main": "index.ts",
-  "scripts": {
-    "dev": "rm -rf ./docs/static && webpack --watch --mode=development",
-    "build": "rm -rf ./docs/static  && webpack --mode=production"
-  },
-  "license": "MIT",
-  "dependencies": {},
-  "devDependencies": {
-    "css-loader": "^6.6.0",
-    "html-webpack-plugin": "^5.5.0",
-    "path": "^0.12.7",
-    "sass": "^1.49.7",
-    "sass-loader": "^12.5.0",
-    "style-loader": "^3.3.1",
-    "ts-loader": "^9.2.6",
-    "typescript": "^4.5.5",
-    "webpack": "^5.68.0",
-    "webpack-cli": "^4.9.2"
-  },
-  "repository": {
-    "url": "https://github.com/thangved/sort-visualisation.git",
-    "type": "git"
-  }
+	"name": "sort-visualisation",
+	"version": "1.0.11",
+	"main": "index.ts",
+	"scripts": {
+		"dev": "rm -rf ./docs/static && webpack --watch --mode=development",
+		"build": "yarn prettier && rm -rf ./docs/static  && webpack --mode=production",
+		"prettier": "prettier --write . --use-tabs=true --tab-width=4"
+	},
+	"license": "MIT",
+	"dependencies": {},
+	"devDependencies": {
+		"css-loader": "^6.6.0",
+		"html-webpack-plugin": "^5.5.0",
+		"path": "^0.12.7",
+		"prettier": "^2.5.1",
+		"sass": "^1.49.7",
+		"sass-loader": "^12.5.0",
+		"style-loader": "^3.3.1",
+		"ts-loader": "^9.2.6",
+		"typescript": "^4.5.5",
+		"webpack": "^5.68.0",
+		"webpack-cli": "^4.9.2"
+	},
+	"repository": {
+		"url": "https://github.com/thangved/sort-visualisation.git",
+		"type": "git"
+	}
 }

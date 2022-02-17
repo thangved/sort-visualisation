@@ -1,2 +1,2 @@
-import ArrayUI from './src/ArrayUI';
-export default ArrayUI 
+import ArrayUI from "./src/ArrayUI";
+export default ArrayUI;
